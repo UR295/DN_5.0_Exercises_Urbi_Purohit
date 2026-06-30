@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 using RetailInventory.Data;
 using RetailInventory.Models;
 
@@ -9,35 +10,29 @@ namespace RetailInventory
         static async Task Main(string[] args)
         {
             using var context = new AppDbContext();
-            var electronics = new Category
+
+            Console.WriteLine("All Products");
+            var products = await context.Products.ToListAsync();
+
+            foreach (var p in products)
             {
-                Name = "Electronics"
-            };
+                Console.WriteLine($"{p.Name} - ₹{p.Price}");
+            }
 
-            var groceries = new Category
-            {
-                Name = "Groceries"
-            };
-            await context.Categories.AddRangeAsync(electronics, groceries);
+            Console.WriteLine();
 
-            var product1 = new Product
-            {
-                Name = "Laptop",
-                Price = 75000,
-                Category = electronics
-            };
+            var product = await context.Products.FindAsync(1);
 
-            var product2 = new Product
-            {
-                Name = "Rice Bag",
-                Price = 1200,
-                Category = groceries
-            };
+            Console.WriteLine("Find by ID");
+            Console.WriteLine($"Found: {product?.Name}");
 
-            await context.Products.AddRangeAsync(product1, product2);
-            await context.SaveChangesAsync();
+            Console.WriteLine();
+            var expensive = await context.Products
+                                         .FirstOrDefaultAsync(p => p.Price > 50000);
 
-            Console.WriteLine("Data inserted successfully.");
+            Console.WriteLine("First Expensive Product");
+            Console.WriteLine($"Expensive: {expensive?.Name}");
+
             Console.ReadKey();
         }
     }
